@@ -1,24 +1,46 @@
+import { fetchCurrentWeather, fetchData } from 'api';
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { useState } from 'react';
+
+interface IWeatherData {
+  main: {
+    feels_like: number;
+    grnd_level: number;
+    humidity: number;
+    pressure: number;
+    sea_level: number;
+    temp: number;
+    temp_max: number;
+    temp_min: number;
+  };
+  weather: {
+    main: string;
+  };
+}
 
 function App() {
+  const [cityName, setCityName] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const geoData = await fetchData(cityName);
+    const [{ lat, lon }] = geoData;
+    const result = await fetchCurrentWeather(lat, lon);
+    console.log('result', result);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Search cities.."
+          onChange={(e) => setCityName(e.target.value)}
+        />
+        <input type="submit" value="검색" />
+      </form>
+      <div className="display"> 날씨 표시</div>
     </div>
   );
 }
