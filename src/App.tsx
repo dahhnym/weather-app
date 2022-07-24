@@ -2,6 +2,7 @@ import React, { useState, Dispatch, SetStateAction } from 'react';
 import './App.css';
 import Search from 'components/Search';
 import Display from 'components/Display';
+import styled from 'styled-components';
 
 export interface IWeatherData {
   main: {
@@ -14,10 +15,14 @@ export interface IWeatherData {
     temp_max: number;
     temp_min: number;
   };
+  name: string;
   weather: {
+    id: number;
     main: string;
     description: string;
   }[];
+  cod?: string;
+  message?: string;
 }
 
 export interface IProps {
@@ -37,8 +42,10 @@ const defaultData = {
     temp_max: 0,
     temp_min: 0,
   },
+  name: '',
   weather: [
     {
+      id: 0,
       main: '',
       description: '',
     },
@@ -50,15 +57,23 @@ function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   return (
-    <div className="App">
+    <Container>
       <Search
         setData={setData}
         setIsLoading={setIsLoading}
         isLoading={isLoading}
       />
-      {!isLoading ? <Display {...data} /> : null}
-    </div>
+      {!isLoading && data.cod !== '404' ? <Display {...data} /> : null}
+      {data.cod === '404' ? <p>Error : {data.message}</p> : null}
+    </Container>
   );
 }
 
 export default App;
+
+const Container = styled.div`
+  margin: 5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
