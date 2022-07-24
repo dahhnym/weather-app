@@ -24,8 +24,6 @@ const Search = ({ setData, setIsLoading }: IProps) => {
     resetInputField();
     const { data, status } = await refetch();
     setIsLoading(false);
-    console.log('데이터', data);
-    console.log('status', status);
     if (data.cod === '404') {
       setData(data);
     }
