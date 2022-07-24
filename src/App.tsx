@@ -1,46 +1,62 @@
-import { fetchCurrentWeather, fetchData } from 'api';
-import React from 'react';
+import React, { useState, Dispatch, SetStateAction } from 'react';
 import './App.css';
-import { useState } from 'react';
+import Search from 'components/Search';
+import Display from 'components/Display';
 
-interface IWeatherData {
+export interface IWeatherData {
   main: {
     feels_like: number;
-    grnd_level: number;
+    grnd_level?: number;
     humidity: number;
     pressure: number;
-    sea_level: number;
+    sea_level?: number;
     temp: number;
     temp_max: number;
     temp_min: number;
   };
   weather: {
     main: string;
-  };
+    description: string;
+  }[];
 }
 
-function App() {
-  const [cityName, setCityName] = useState('');
+export interface IProps {
+  setData: Dispatch<SetStateAction<IWeatherData>>;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  isLoading: boolean;
+}
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const geoData = await fetchData(cityName);
-    const [{ lat, lon }] = geoData;
-    const result = await fetchCurrentWeather(lat, lon);
-    console.log('result', result);
-  };
+const defaultData = {
+  main: {
+    feels_like: 0,
+    grnd_level: 0,
+    humidity: 0,
+    pressure: 0,
+    sea_level: 0,
+    temp: 0,
+    temp_max: 0,
+    temp_min: 0,
+  },
+  weather: [
+    {
+      main: '',
+      description: '',
+    },
+  ],
+};
+
+function App() {
+  const [data, setData] = useState<IWeatherData>(defaultData);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   return (
     <div className="App">
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Search cities.."
-          onChange={(e) => setCityName(e.target.value)}
-        />
-        <input type="submit" value="검색" />
-      </form>
-      <div className="display"> 날씨 표시</div>
+      <Search
+        setData={setData}
+        setIsLoading={setIsLoading}
+        isLoading={isLoading}
+      />
+      {!isLoading ? <Display {...data} /> : null}
     </div>
   );
 }
