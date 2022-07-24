@@ -20,6 +20,7 @@ const Display = (data: IWeatherData) => {
 
   let imageSrc = '';
 
+  // weather code에 따라 다른 이미지 경로
   const getWeatherImageSrc = () => {
     if (id === 800) {
       imageSrc = `${process.env.PUBLIC_URL}/assets/clear.jpg`;
@@ -45,47 +46,41 @@ const Display = (data: IWeatherData) => {
 
   return (
     <Container>
-      {data.cod === '404' ? (
-        <p>data.message</p>
-      ) : (
-        <>
-          <Image src={imageSrc} />
-          <CityName>{name}</CityName>
-          <ul>
-            <li>
-              <Bold>날씨</Bold>: {`${weatherMain}, ${description}`}
-            </li>
-            <li>
-              <Bold>기분</Bold>: {main.feels_like}
-            </li>
-            <li>
-              <Bold>기온</Bold>: {main.temp}
-            </li>
-            <li>
-              <Bold>최대 온도</Bold>: {main.temp_max}
-            </li>
-            <li>
-              <Bold>최소 온도</Bold>: {main.temp_min}
-            </li>
-            <li>
-              <Bold>기압</Bold> : {main.pressure}
-            </li>
-            <li>
-              <Bold>습기</Bold>: {main.humidity}
-            </li>
-            {main?.grnd_level ? (
-              <li>
-                <Bold>대지 기압</Bold>: {main?.grnd_level}
-              </li>
-            ) : null}
-            {main?.sea_level ? (
-              <li>
-                <Bold>해수면 기압</Bold>: {main?.sea_level}
-              </li>
-            ) : null}
-          </ul>
-        </>
-      )}
+      <Image src={imageSrc} />
+      <CityName>{name}</CityName>
+      <ul>
+        <li>
+          <Bold>날씨</Bold>: {`${weatherMain}, ${description}`}
+        </li>
+        <li>
+          <Bold>기분</Bold>: {main.feels_like}
+        </li>
+        <li>
+          <Bold>기온</Bold>: {main.temp}
+        </li>
+        <li>
+          <Bold>최대 온도</Bold>: {main.temp_max}
+        </li>
+        <li>
+          <Bold>최소 온도</Bold>: {main.temp_min}
+        </li>
+        <li>
+          <Bold>기압</Bold> : {main.pressure}
+        </li>
+        <li>
+          <Bold>습기</Bold>: {main.humidity}
+        </li>
+        {main?.grnd_level ? (
+          <li>
+            <Bold>대지 기압</Bold>: {main?.grnd_level}
+          </li>
+        ) : null}
+        {main?.sea_level ? (
+          <li>
+            <Bold>해수면 기압</Bold>: {main?.sea_level}
+          </li>
+        ) : null}
+      </ul>
     </Container>
   );
 };
