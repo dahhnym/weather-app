@@ -36,7 +36,7 @@ const Display = (data: IWeatherData) => {
       imageSrc = `${process.env.PUBLIC_URL}/assets/snow.jpg`;
     } else if (numberAtfirstIdxOfId === '7') {
       imageSrc = `${process.env.PUBLIC_URL}/assets/atmosphere.jpg`;
-    } else {
+    } else if (numberAtfirstIdxOfId === '8' && id.toString().at(2) !== '0') {
       imageSrc = `${process.env.PUBLIC_URL}/assets/clouds.jpg`;
     }
   };
