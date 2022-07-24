@@ -1,46 +1,131 @@
-# Getting Started with Create React App
+# weather-app
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### 요구사항
 
-## Available Scripts
+- [ ] 여러 국가를 선택할 수 있다.
+- [ ] 날씨의 상태에 따라 다른 이미지 표시
+- [ ] 날씨 정보 표시
+  - 날씨, 기분, 기압, 습기, 최소/최대 온도, 해수면 기압, 대지 기압
+    - 해수면 기압, 대지 기압 : 특정 도시 한정 표시
 
-In the project directory, you can run:
+### 적용 기술
 
-### `yarn start`
+- React
+- TypeScript
+- React query
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 배포URL
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+https://dahhnym.github.io/weather-app
 
-### `yarn test`
+### 프로젝트 실행방법
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- 레포지토리를 clone 받거나, 압축 해제 후 yarn install을 통해 환경 세팅 합니다.
+- src 폴더에 .env 파일을 생성 후 환경변수를 설정합니다.
+  - [환경변수 설정 방법](https://valentinakim.notion.site/API-KEY-0521aa82924a49369fe48d74366afcc4)
+- yarn start로 서버를 구동하여 실행합니다.
 
-### `yarn build`
+<br>
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 프로젝트 설명
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```jsx
+// src/components/Search.tsx
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+// 버튼 클릭했을 시 데이터 fetch하기
+// 렌더링 시 자동으로 쿼리가 호출 되는 것이 아닌 submit 이벤트 발생 시 query 실행
+const useGetDataAfterClick = () =>
+  useQuery(['get/locationData'], () => fetchLocationByCityName(cityName), {
+    enabled: false,
+  });
 
-### `yarn eject`
+const { refetch } = useGetDataAfterClick();
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+const resetInputField = () => {
+  setCityName('');
+};
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  resetInputField();
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+  // refetch 후 받아온 데이터
+  const { data, status } = await refetch();
+  setIsLoading(false);
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+  // 404 에러 발생시, 에러 데이터를 state에 저장
+  if (data.cod === '404') {
+    setData(data);
+  }
+  // 정상적으로 데이터 가져온 경우
+  if (status === 'idle' || status === 'success') {
+    setData(data);
+  }
+};
+```
 
-## Learn More
+```jsx
+// src/components/Display.tsx
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+  const { main, weather, name } = data;
+  const [{ main: weatherMain, id, description }] = weather;
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+  // ...
+
+  // 날씨 상태에 따라 다른 이미지 보여주기
+  // weather code에 따라 다른 이미지 경로
+  const getWeatherImageSrc = () => {
+    if (id === 800) {
+      imageSrc = `${process.env.PUBLIC_URL}/assets/clear.jpg`;
+    }
+
+    if (numberAtfirstIdxOfId === '2') {
+      imageSrc = `${process.env.PUBLIC_URL}/assets/thunderstorm.jpg`;
+      return imageSrc;
+    } else if (numberAtfirstIdxOfId === '3') {
+      imageSrc = `${process.env.PUBLIC_URL}/assets/drizzle.jpg`;
+    } else if (numberAtfirstIdxOfId === '5') {
+      imageSrc = `${process.env.PUBLIC_URL}/assets/rain.jpg`;
+    } else if (numberAtfirstIdxOfId === '6') {
+      imageSrc = `${process.env.PUBLIC_URL}/assets/snow.jpg`;
+    } else if (numberAtfirstIdxOfId === '7') {
+      imageSrc = `${process.env.PUBLIC_URL}/assets/atmosphere.jpg`;
+    } else if (numberAtfirstIdxOfId === '8' && id.toString().at(2) !== '0') {
+      imageSrc = `${process.env.PUBLIC_URL}/assets/clouds.jpg`;
+    }
+  };
+
+// ...
+
+  return (
+    <Container>
+      <Image src={imageSrc} />
+      <CityName>{name}</CityName>
+      <ul>
+        <!-- 날씨 정보 표시 -->
+      </ul>
+    </Container>
+  );
+```
+
+```jsx
+// src/App.tsx
+
+const [data, setData] = useState<IWeatherData>(defaultData);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  return (
+    <Container>
+      <Search
+        setData={setData}
+        setIsLoading={setIsLoading}
+        isLoading={isLoading}
+      />
+
+      <!-- loading 중이지 않고 404 에러가 나지 않는 경우 Display 컴포넌트 렌더링 -->
+      {!isLoading && data.cod !== '404' ? <Display {...data} /> : null}
+      <!-- 404 에러 발생시 에러메세지 표시-->
+      {data.cod === '404' ? <p>Error : {data.message}</p> : null}
+    </Container>
+  );
+```
